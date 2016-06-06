@@ -68,8 +68,11 @@ My advice to create a simple erlang/elixir server in clojure is to create a `pro
 
 ```clojure
 (defproject calculator "0.0.1" 
-  :dependencies [[clojure-erlastic "0.1.4"]
-                 [org.clojure/core.match "0.2.1"]])
+  :dependencies [ 
+```
+  ![](http://clojars.org/clojure-erlastic/latest-version.svg)
+```clojure
+     [org.clojure/core.match "0.2.1"]])
 ```
 
 > lein uberjar

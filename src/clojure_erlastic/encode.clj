@@ -2,7 +2,8 @@
   (:require [clojure-erlastic.util :refer [get-conf printables utf-8 default-config]])
   (:import (com.ericsson.otp.erlang OtpErlangAtom OtpErlangObject OtpErlangTuple
                                     OtpErlangString OtpErlangList OtpErlangLong
-                                    OtpErlangBinary OtpErlangDouble OtpErlangMap)))
+                                    OtpErlangInt OtpErlangBinary OtpErlangDouble
+                                    OtpErlangMap)))
 
 (defn- erlang-objects
   #^"[Lcom.ericsson.otp.erlang.OtpErlangObject;"
@@ -32,7 +33,7 @@
 (extend-type Integer
   IErlang
   (-encode- [this config]
-    (OtpErlangLong. (long this))))
+    (OtpErlangInt. (long this))))
 
 (extend-type clojure.lang.ISeq
   IErlang
@@ -79,8 +80,17 @@
 (extend-type clojure.lang.IPersistentMap
   IErlang
   (-encode- [this config]
-    (OtpErlangMap. (into-array OtpErlangObject (map #(-encode- % config) (keys this)))
-                   (into-array OtpErlangObject (map #(-encode- % config) (vals this))))))
+    (let [c    (count this)
+          ks   #^"[Lcom.ericsson.otp.erlang.OtpErlangObject;" (make-array OtpErlangObject c)
+          vs   #^"[Lcom.ericsson.otp.erlang.OtpErlangObject;" (make-array OtpErlangObject c)]
+      (reduce-kv
+        (fn [i k v]
+          (aset ks i (-encode- k config))
+          (aset vs i (-encode- v config))
+          (inc i))
+        0
+        this)
+      (OtpErlangMap. ks vs))))
 
 (extend-type (Class/forName "[B")
   IErlang

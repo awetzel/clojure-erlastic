@@ -18,6 +18,10 @@
       (is (= (-> #{:a :b :c :d} encode decode set) #{:a :b :c :d})))
     (testing "Float encoding"
       (is (= (-> 4.3 encode decode) 4.3)))
+    (testing "Int encoding"
+      (is (= (-> 4 encode decode) 4)))
+    (testing "Long encoding"
+      (is (= (-> 12345678910 encode decode) 12345678910)))
     (testing "Bool encoding"
       (is (= (-> true encode decode) true)))
     (testing "Binary encoding"

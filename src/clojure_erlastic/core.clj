@@ -17,7 +17,8 @@
 (defn port-connection
   ([] (port-connection default-config))
   ([config]
-   (let [in (chan) out (chan)]
+   (let [in  (chan)
+         out (chan)]
      (go ;; term receiver coroutine
        (try
          (while true

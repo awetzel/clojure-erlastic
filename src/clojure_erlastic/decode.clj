@@ -2,7 +2,8 @@
   (:require [clojure-erlastic.util :refer [get-conf printables utf-8]])
   (:import (com.ericsson.otp.erlang OtpErlangAtom OtpErlangObject OtpErlangTuple
                                     OtpErlangString OtpErlangList OtpErlangLong
-                                    OtpErlangBinary OtpErlangDouble OtpErlangMap)
+                                    OtpErlangBinary OtpErlangDouble OtpErlangMap
+                                    OtpErlangInt)
            (java.nio ByteBuffer CharBuffer)))
 
 (defn str-or-bin [^bytes bin]
@@ -118,6 +119,11 @@
   IErlang
   (-decode- [obj config]
     (.longValue obj)))
+
+(extend-type OtpErlangInt
+  IErlang
+  (-decode- [obj config]
+    (.intValue obj)))
 
 (extend-type OtpErlangDouble
   IErlang

@@ -11,7 +11,7 @@ Designed to be used (but not necessarily) with
 [https://github.com/awetzel/exos](https://github.com/awetzel/exos).
 
 Last version of JInterface (from erlang 17.0) is taken from google scalaris
-maven repo. 
+maven repo.
 
 ## Usage
 
@@ -24,7 +24,8 @@ and decoded into erlang binary term following these rules :
 - erlang list is clojure list
 - erlang tuple is clojure vector
 - erlang binary is clojure bytes[]
-- erlang integer is clojure long
+- erlang integer is clojure int
+- erlang long is clojure long
 - erlang float is clojure double
 - erlang map is clojure map (thanks to erlang 17.0)
 - clojure set is erlang list
@@ -33,14 +34,14 @@ Conversion of nil and string are configurable : every functions
 `port-connection`, `decode`, `encode`, `run-server` can take an optional
 `config` argument : a map defining 3 configs `:convention`, `:str-detect`, `:str-autodetect-len`.
 
-- if `(= :convention :elixir)` then : 
+- if `(= :convention :elixir)` then :
   - clojure nil is erlang `nil` atom, so elixir `nil`
   - clojure string is encoded into erlang utf8 binary
   - erlang binaries are decoded into clojure string :
     - always if `(= :str-detect :all)`
     - never if `(= :str-detect :none)`
     - if the "str-autodetect-len" first bytes are printable when `(= :str-detect :auto)`
-- if `(= :convention :erlang)` then : 
+- if `(= :convention :erlang)` then :
   - clojure nil is erlang `undefined`
   - clojure string is encoded into erlang integer list
   - erlang lists are decoded into clojure string :
@@ -60,21 +61,21 @@ For instance, here is a simple echo server :
 
 ## Example : a simple clojure calculator ##
 
-My advice to create a simple erlang/elixir server in clojure is to create a `project.clj` containing the clojure-erlastic dependency and other needed deps for your server, then use "lein uberjar" to create a jar containing all the needed files. 
+My advice to create a simple erlang/elixir server in clojure is to create a `project.clj` containing the clojure-erlastic dependency and other needed deps for your server, then use "lein uberjar" to create a jar containing all the needed files.
 
 > mkdir calculator; cd calculator
 
 > vim project.clj
 
 ```clojure
-(defproject calculator "0.0.1" 
+(defproject calculator "0.0.1"
   :dependencies [[clojure-erlastic "0.1.4"]
                  [org.clojure/core.match "0.2.1"]])
 ```
 
 > lein uberjar
 
-Then create your clojure server as a simple script 
+Then create your clojure server as a simple script
 
 > vim calculator.clj
 
@@ -84,7 +85,7 @@ Then create your clojure server as a simple script
 (use '[clojure.core.match :only (match)])
 
 (let [[in out] (clojure-erlastic.core/port-connection)]
-  (<!! (go 
+  (<!! (go
     (loop [num 0]
       (match (<! in)
         [:add n] (recur (+ num n))
@@ -98,11 +99,11 @@ Finally launch the clojure server as a port, do not forget the `:binary` and `{:
 
 ```elixir
 defmodule CljPort do
-  def start, do: 
+  def start, do:
     Port.open({:spawn,'java -cp target/calculator-0.0.1-standalone.jar clojure.main calculator.clj'},[:binary, packet: 4])
-  def psend(port,data), do: 
+  def psend(port,data), do:
     send(port,{self,{:command,:erlang.term_to_binary(data)}})
-  def preceive(port), do: 
+  def preceive(port), do:
     receive(do: ({^port,{:data,b}}->:erlang.binary_to_term(b)))
 end
 port = CljPort.start
@@ -188,7 +189,7 @@ defmodule Myapp do
 end
 ```
 
-Then you can launch and test your application in the shell : 
+Then you can launch and test your application in the shell :
 
 ```
 iex -S mix
@@ -209,7 +210,7 @@ iex(6)> GenServer.call Calculator,:get
 
 The channels are closed when the launching erlang application dies, so you just
 have to test if `(<! in)` is `nil` to know if the connection with erlang is
-still opened.  
+still opened.
 
 ## Erlang style handler ##
 
